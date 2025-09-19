@@ -166,15 +166,16 @@ NSError *makeError(realm::Status const& status) {
 }
 
 NSError *makeError(realm::Exception const& exception) {
+    const char *safeWhat = "<unknown realm error>";
     auto status = exception.to_status();
     if (status.code() == realm::ErrorCodes::SystemError && status.get_std_error_code() != std::error_code{}) {
-        return translateSystemError(status.get_std_error_code(), exception.what());
+        return translateSystemError(status.get_std_error_code(), safeWhat);
     }
 
     NSInteger code = translateFileError(exception.code());
     return [NSError errorWithDomain:errorDomain(status.code())
                                code:code
-                           userInfo:@{NSLocalizedDescriptionKey: @(exception.what()),
+                           userInfo:@{NSLocalizedDescriptionKey: @(safeWhat),
                                       RLMDeprecatedErrorCodeKey: @(code),
                                       RLMErrorCodeNameKey: errorString(exception.code())}];
 
