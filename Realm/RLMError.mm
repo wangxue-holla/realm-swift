@@ -182,23 +182,26 @@ NSError *makeError(realm::Exception const& exception) {
 }
 
 NSError *makeError(realm::FileAccessError const& exception) {
+    const char *safeWhat = "<unknown realm error>";
     NSInteger code = translateFileError(exception.code());
     return [NSError errorWithDomain:errorDomain(exception.code())
                                code:code
-                           userInfo:@{NSLocalizedDescriptionKey: @(exception.what()),
+                           userInfo:@{NSLocalizedDescriptionKey: @(safeWhat),
                                       NSFilePathErrorKey: @(exception.get_path().data()),
                                       RLMDeprecatedErrorCodeKey: @(code),
                                       RLMErrorCodeNameKey: errorString(exception.code())}];
 }
 
 NSError *makeError(std::exception const& exception) {
+    const char *safeWhat = "<unknown realm error>";
     return [NSError errorWithDomain:RLMErrorDomain
                                code:RLMErrorFail
-                           userInfo:@{NSLocalizedDescriptionKey: @(exception.what())}];
+                           userInfo:@{NSLocalizedDescriptionKey: @(safeWhat)}];
 }
 
 NSError *makeError(std::system_error const& exception) {
-    return translateSystemError(exception.code(), exception.what());
+    const char *safeWhat = "<unknown realm error>";
+    return translateSystemError(exception.code(), safeWhat);
 }
 
 __attribute__((objc_direct_members))
